@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<style>
+table, th, td{
+    border:1px solid black
+}
+</style>
+    <head>
+        <title>Listed Gates</title>
+    </head>
+
+    <body>
+        <h1>List of Gates</h1>
+        <div>
+            <table>
+                <tr>
+                    <td>Gate ID</td>
+                    <td>Gate Secret</td>
+                    <td>Gate location</td>
+                    <td>Gate activations</td>
+                </tr>
+                {% for gate in gates %}
+                    <tr>
+                        <td>{{gate._id}}</td>
+                        <td>{{gate.secret}}</td>
+                        <td>{{gate.location}}</td>
+                        <td>{{gate.activations}}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+        </div>
+    </body>
+</html>
