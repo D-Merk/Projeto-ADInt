@@ -46,17 +46,16 @@ def register_gate():
     return render_template("register.html")
 @app.route("/list")
 def list_gates():
-    gates = GateData.query.all()
-    return render_template("list.html", gates = gates)
+    return render_template("list.html", gates = GateData.query.all())
 #########################################################################
 
 @app.route("/gates")
 def gates():
-    return "Gates page not implemented"
+    return "Gates page not implemented and dont know how to make code last 1min"
 
 @app.route("/users")
 def users():
-    return "Users page not implemented"
+    return "Users page not implemented and dont know how to make code last 1min"
 
 #Starts database and flask web server
 if __name__ == "__main__":
