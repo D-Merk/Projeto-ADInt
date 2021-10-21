@@ -1,6 +1,9 @@
+from datetime import datetime
 from flask import Flask, app, request, render_template, json
 import os
 from flask_sqlalchemy import SQLAlchemy
+import random
+import string
 
 #Flask app configuration
 app = Flask(__name__)
@@ -29,7 +32,26 @@ class GateData(db.Model):
     def insert(self):
         db.session.add(self)
         db.session.commit()
+    
+class KeyData(db.Model):
+    __tablename__ = "key_data"
+    _id = db.Column(db.Integer, primary_key = True)
+    key = db.Column(db.String)
+    creationtime = db.Column(db.DateTime)
 
+    def __init__(self, key):
+        self.key = key
+        self.creationtime = datetime.now()
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+
+
+
+
+def getKey():
+    return ''.join(random.choices(string.ascii_lowercase+string.digits,k=6))
 
 #Endpoints
 #Admin Web Page ##########################################################
@@ -49,13 +71,40 @@ def list_gates():
     return render_template("list.html", gates = GateData.query.all())
 #########################################################################
 
-@app.route("/gates")
+@app.route("/gates",methods = ['POST'])
 def gates():
-    return "Gates page not implemented and dont know how to make code last 1min"
+    key = request.form['code']
+    key_query = KeyData.query.filter_by(key = key).first()
+    
+    if key_query is None:
+        return "FAILED"
+    else:
+        endtime = datetime.now()
+        delta = endtime - key_query.creationtime
+        delta = delta.total_seconds()
+        print("delta = ",delta)
+        if delta > 60:
+            #remove from DB
+            return "FAIL"
+        else:
+            return "SUCSSESS"
+
+
+@app.route("/gateslogin",methods=['POST'])
+def gates_login():
+    gate_id, gate_secret = request.form['id'], request.form['secret']
+    gate_query = GateData.query.filter_by( _id = gate_id).first()
+    if gate_secret == gate_query.secret:
+        return "SUCSSESS"
+    else:
+        return "FAILED"
 
 @app.route("/users")
 def users():
-    return "Users page not implemented and dont know how to make code last 1min"
+    key = getKey()
+    new_key = KeyData(key)
+    new_key.insert()
+    return key
 
 #Starts database and flask web server
 if __name__ == "__main__":
