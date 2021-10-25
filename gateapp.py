@@ -16,7 +16,8 @@ if __name__ == "__main__":
         while c == "FAIL":
             print("Type the user code :")
             code = input()
-            post_info = {'code': code}
+            code.strip()
+            post_info = {'code': code, 'id':sys.argv[1]}
             r = requests.post(URL1, data = post_info)
             c = r.text
             print("Contacting Server for...")

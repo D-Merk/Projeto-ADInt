@@ -5,7 +5,6 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 import random
 import string
-import requests
 
 from server import gates
 
@@ -57,9 +56,15 @@ def insert_gate():
     new_gate = GateData(request.form['id'],
                         request.form['secret'],
                         request.form['location'])
-    db.session.add(new_gate)
-    db.session.commit()
-    return "IS done"
+    if GateData.query.filter_by(_id = new_gate._id).first() is None:
+        db.session.add(new_gate)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        return "Gate Registered"
+    else:
+        return "Gate with that id is already registered",469
 
 @app.route("/queryGate",methods=['GET', 'POST'])
 def query_gate():
@@ -75,15 +80,22 @@ def query_gate():
 def delete_gate():
     gate_id = request.form['id']
     GateData.query.filter_by(_id = gate_id).delete()
-    return "Gate "+ gate_id + "has been removed"
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+    return "Gate deleted"
 
 #KeyData operations
 @app.route("/insertKey",methods=['POST'])
 def insert_key():
     new_key = KeyData(request.form['key'])
     db.session.add(new_key)
-    db.session.commit()
-    return 0
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+    return "Key inserted"
 
 @app.route("/queryKey",methods=['GET','POST'])
 def query_key():
@@ -99,7 +111,22 @@ def query_key():
 def delete_key():
     key = request.form['key']
     KeyData.query.filter_by(key = key).delete()
-    return "FAIL"
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+    return "Key deleted"
+
+@app.route("/updateAct",methods=['POST'])
+def update_act():
+    gate_id = request.form['id']
+    gate_query = GateData.query.filter_by(_id = gate_id).first()
+    gate_query.activations = GateData.activations + 1
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+    return "activations updated"
 
 if __name__ ==  "__main__":
     db.create_all()

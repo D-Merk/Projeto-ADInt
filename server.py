@@ -17,6 +17,9 @@ app.config["UPLOAD_FOLDER"] = os.path.abspath("files")
 def getKey():
     return ''.join(random.choices(string.ascii_lowercase+string.digits,k=6))
 
+def get_secret():
+    return format(random.randint(0000,9999), '04d')
+
 #Endpoints
 #Admin Web Page ##########################################################
 @app.route("/",methods=['GET','POST'])
@@ -24,9 +27,13 @@ def getKey():
 def admin_page():
     if request.method == 'POST':
         new_gate = {'id': request.form.get("id"),
-                    'secret':"ABC123",
+                    'secret': get_secret(),
                     'location':request.form.get("location")}
         r = requests.post(URL+"/insertGate", data=new_gate)
+        if r.status_code == 469:
+            return r.text,469
+        else:
+            return render_template("secret.html", secret = new_gate["secret"], id = new_gate["id"])
         #Check response to see if id is already registered
     return render_template("admin.html")
 
@@ -44,30 +51,26 @@ def list_gates():
 @app.route("/gates",methods = ['POST'])
 def gates():
     key = request.form['code']
+    gate_id = request.form['id']
     #Check query
     r = requests.post(URL+"/queryKey", data={'key': key})
     keys = json.loads(r.text)
     endtime = datetime.now()
-    delta = endtime - datetime.strptime(keys[1],"%a, %d %b %Y %H:%M:%S %Z")
-    return str(delta.total_seconds())
     
     if keys is None:
-        return "FAILED"
+        return "FAIL"
     else:
-        print(keys[1])
         endtime = datetime.now()
-        #delta = endtime - keys[1]
-        #print(delta)
-        #delta = delta.total_seconds()
-        #print("delta = ",delta)
-        #if delta > 60:
-            #check delete with REST
-           # r = requests.post(URL+"/deleteKey", data={'key':keys[0]})
-            #return "FAIL"
-        #else:
-            #return "SUCSSESS"
+        delta = endtime - datetime.strptime(keys[1],"%a, %d %b %Y %H:%M:%S %Z")
+        delta = delta.total_seconds()
+        if delta > 60:
+            r = requests.post(URL+"/deleteKey", data={'key':keys[0]})
+            return "FAIL"
+        else:
+            r = requests.post(URL+"/updateAct", data={'id': gate_id})
+            r = requests.post(URL+"/deleteKey", data={'key':keys[0]})
+            return "SUCSSESS"
 
-    return "SUCSSESS"
 
 
 @app.route("/gateslogin",methods=['POST'])
