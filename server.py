@@ -37,8 +37,8 @@ def register_gate():
 @app.route("/list")
 def list_gates():
     r = requests.get(URL+"/queryGate")
-    #How to show this shit
-    return render_template("list.html", gates = r)#####<-------------------
+    gates = json.loads(r.text)
+    return render_template("list.html", gates = gates)
 #########################################################################
 
 @app.route("/gates",methods = ['POST'])
@@ -46,31 +46,38 @@ def gates():
     key = request.form['code']
     #Check query
     r = requests.post(URL+"/queryKey", data={'key': key})
-    #Check the format of this
+    keys = json.loads(r.text)
+    endtime = datetime.now()
+    delta = endtime - datetime.strptime(keys[1],"%a, %d %b %Y %H:%M:%S %Z")
+    return str(delta.total_seconds())
     
-    if r. is None:
+    if keys is None:
         return "FAILED"
     else:
+        print(keys[1])
         endtime = datetime.now()
-        delta = endtime - key_query.creationtime
-        delta = delta.total_seconds()
-        print("delta = ",delta)
-        if delta > 60:
+        #delta = endtime - keys[1]
+        #print(delta)
+        #delta = delta.total_seconds()
+        #print("delta = ",delta)
+        #if delta > 60:
             #check delete with REST
-            KeyData.query.filter_by(key = key).delete()
-            db.session.commit()
-            return "FAIL"
-        else:
-            return "SUCSSESS"
+           # r = requests.post(URL+"/deleteKey", data={'key':keys[0]})
+            #return "FAIL"
+        #else:
+            #return "SUCSSESS"
+
+    return "SUCSSESS"
 
 
 @app.route("/gateslogin",methods=['POST'])
 def gates_login():
     gate_id, gate_secret = request.form['id'], request.form['secret']
     #query
-    r = requests.post(URL+"/queryKey", data={'id': gate_id})
+    r = requests.post(URL+"/queryGate", data={'id': gate_id})
+    gate = json.loads(r.text)
     #Check the format
-    if gate_secret == gate_query.secret:
+    if gate_secret == gate[1]:
         return "SUCSSESS"
     else:
         return "FAILED"

@@ -21,10 +21,11 @@ table, th, td{
                 </tr>
                 {% for gate in gates %}
                     <tr>
-                        <td>{{gate._id}}</td>
-                        <td>{{gate.secret}}</td>
-                        <td>{{gate.location}}</td>
-                        <td>{{gate.activations}}</td>
+                        {% for par in gate %}
+                            <td>
+                                {{par}}
+                            </td>
+                        {% endfor %}
                     </tr>
                 {% endfor %}
             </table>
@@ -32,3 +33,5 @@ table, th, td{
         </div>
     </body>
 </html>
+
+

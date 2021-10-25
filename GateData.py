@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 from flask import Flask, app, request, render_template, json
 import os
@@ -5,6 +6,8 @@ from flask_sqlalchemy import SQLAlchemy
 import random
 import string
 import requests
+
+from server import gates
 
 
 app = Flask(__name__)
@@ -15,6 +18,7 @@ app.config["UPLOAD_FOLDER"] = os.path.abspath("files")
 db = SQLAlchemy(app)
 
 #Database Table
+@dataclass
 class GateData(db.Model):
     __tablename__ = "gate_data"
     _id = db.Column(db.Integer, primary_key = True)
@@ -32,7 +36,8 @@ class GateData(db.Model):
     def insert(self):
         db.session.add(self)
         db.session.commit()
-    
+
+@dataclass 
 class KeyData(db.Model):
     __tablename__ = "key_data"
     _id = db.Column(db.Integer, primary_key = True)
@@ -54,15 +59,17 @@ def insert_gate():
                         request.form['location'])
     db.session.add(new_gate)
     db.session.commit()
-    return 0
+    return "IS done"
 
 @app.route("/queryGate",methods=['GET', 'POST'])
 def query_gate():
     if request.method == 'GET':
-        return GateData.query.all()
+        gate_query = GateData.query.all()
+        return json.jsonify([[gate._id, gate.secret, gate.location, gate.activations] for gate in gate_query])
     else:
         gate_id = request.form['id']
-        return GateData.query.filter_by(_id = gate_id).first()
+        gate_query = GateData.query.filter_by(_id = gate_id).first()
+        return json.jsonify([gate_query._id, gate_query.secret, gate_query.location, gate_query.activations])
 
 @app.route("/deleteGate",methods=['POST'])
 def delete_gate():
@@ -81,10 +88,12 @@ def insert_key():
 @app.route("/queryKey",methods=['GET','POST'])
 def query_key():
     if request.method == 'GET':
-        return GateData.query.all()
+        key_query = KeyData.query.all()
+        return json.jsonify([[key_query.key, key_query.creationtime] for gate in key_query])
     else:
         key = request.form['key']
-        return GateData.query.filter_by(key = key).first()
+        key_query = KeyData.query.filter_by(key = key).first()
+        return json.jsonify([key_query.key, key_query.creationtime])
 
 @app.route("/deleteKey",methods=['POST'])
 def delete_key():
