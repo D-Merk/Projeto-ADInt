@@ -6,9 +6,6 @@ from flask_sqlalchemy import SQLAlchemy
 import random
 import string
 
-from server import gates
-
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///GateData.sqlite'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -32,9 +29,6 @@ class GateData(db.Model):
         self.activations = 0
     def activate(self):
         self.activations += self.activations
-    def insert(self):
-        db.session.add(self)
-        db.session.commit()
 
 @dataclass 
 class KeyData(db.Model):
@@ -46,9 +40,6 @@ class KeyData(db.Model):
     def __init__(self, key):
         self.key = key
         self.creationtime = datetime.now()
-    def insert(self):
-        db.session.add(self)
-        db.session.commit()
 
 #GateData operations
 @app.route("/insertGate",methods=['POST'])
