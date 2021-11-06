@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<style>
+table, th, td{
+    border:1px solid black
+}
+</style>
+    <head>
+        <title>Listed Accesses</title>
+    </head>
+
+    <body>
+        <h1>List of Accesses</h1>
+        <div>
+            <table>
+                <tr>
+                    <td>Gate ID</td>
+                    <td>Gate Secret</td>
+                    <td>Gate location</td>
+                    <td>Gate activation time</td>
+                </tr>
+                {% for access in acesses %}
+                    <tr>
+                        {% for par in access %}
+                            <td>
+                                {{par}}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+
+        </div>
+    </body>
+</html>
+
+

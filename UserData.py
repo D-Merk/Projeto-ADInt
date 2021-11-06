@@ -40,7 +40,7 @@ def insert_entry():
         db.session.rollback()
         return "Error, entry not registered"
 
-@app.route("/queryEntry")
+@app.route("/queryEntry",methods=['POST'])
 def query_entry():
     id = request.form['id']
     entry_query = UserData.query.filter_by(student_id = id).all()

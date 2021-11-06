@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js">
+    </script>
+  <link rel="stylesheet" type="text/css" 
+       href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.css">
+    <script 
+      src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.js">
+    </script>
+  </head>
+  <body>
+    <h3>User Page</h3>
+    <button class="ui button" id ="button-1">Qrcode</button> <br>
+    <button class="ui button" id ="button-2">Gate History</button> <br>
+  </body>
+
+    <script>
+        document.getElementById("button-1").onclick = function () {
+            location.href = "qrcode";
+        };
+        document.getElementById("button-2").onclick = function () {
+            location.href = "history";
+        };
+    </script>
+</html>
