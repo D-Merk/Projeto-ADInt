@@ -8,7 +8,8 @@ import requests
 
 
 #URL for UserData
-URL = "http://localhost:8002"
+URL1 = "http://localhost:8000"
+URL2 = "http://localhost:8002"
 
 #Flask app configuration
 app = Flask(__name__)
@@ -23,13 +24,13 @@ def user_page():
 
 @app.route("/qrcode")
 def new_qrcode():
-    r = requests.get(URL+"/users")
+    r = requests.get(URL1+"/users")
     secret = r.text
     return render_template("qrcode.html", secret = secret)
 
 @app.route("/history")
 def history_gates():
-    r = requests.post(URL+"/queryEntry", data={'id':1})
+    r = requests.post(URL2+"/queryEntry", data={'id':1})
     accesses = json.loads(r.text)
     return render_template("history.html", accesses = accesses)
 #########################################################################
