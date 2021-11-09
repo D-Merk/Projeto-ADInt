@@ -1,14 +1,9 @@
-from datetime import datetime
 from flask import Flask, app, request, render_template, json
-import os
-from flask_sqlalchemy import SQLAlchemy
-import random
-import string
 import requests
 
-
-#URL for UserData
+#URL for GateData
 URL1 = "http://localhost:8000"
+#URL for UserData
 URL2 = "http://localhost:8002"
 
 #Flask app configuration
@@ -16,7 +11,7 @@ app = Flask(__name__)
 
 
 #Endpoints
-#Admin Web Page ##########################################################
+#User Web Page ##########################################################
 @app.route("/",methods=['GET','POST'])
 @app.route("/user",methods=['GET', 'POST'])
 def user_page():
@@ -30,7 +25,7 @@ def new_qrcode():
 
 @app.route("/history")
 def history_gates():
-    r = requests.post(URL2+"/queryEntry", data={'id':1})
+    r = requests.post(URL2+"/queryEntry", data= {'id':2})
     accesses = json.loads(r.text)
     return render_template("history.html", accesses = accesses)
 #########################################################################
