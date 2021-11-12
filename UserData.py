@@ -7,6 +7,8 @@ from flask_sqlalchemy import SQLAlchemy
 import random
 import string
 
+import requests
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///UserData.sqlite'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -21,6 +23,7 @@ class UserData(db.Model):
     student_id = db.Column(db.Integer)
     gate_id = db.Column(db.Integer)
     entrance_time = db.Column(db.DateTime)
+    status = db.Column(db.String)
 
     def __init__(self, id, gate_id, entry_time):
         self.student_id = id
@@ -31,7 +34,8 @@ class UserData(db.Model):
 def insert_entry():
     new_entry = UserData(request.form['id'],
                          request.form['gate_id'],
-                         request.form['time'])
+                         request.form['time'],
+                         request.form['status'])
     db.session.add(new_entry)
     try:
         db.session.commit()

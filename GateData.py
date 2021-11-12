@@ -30,11 +30,6 @@ class GateData(db.Model):
         self.secret = secret
         self.location = location
         self.activations = 0
-    def activate(self):
-        self.activations += self.activations
-    def insert(self):
-        db.session.add(self)
-        db.session.commit()
 
 @dataclass 
 class KeyData(db.Model):
@@ -46,9 +41,23 @@ class KeyData(db.Model):
     def __init__(self, key):
         self.key = key
         self.creationtime = datetime.now()
-    def insert(self):
-        db.session.add(self)
-        db.session.commit()
+
+@dataclass
+class EntranceData(db.Model):
+    __tablename__ = "entrance_data"
+    _id = db.Column(db.Integer, primary_key = True)
+    gate_id = db.Column(db.Integer)
+    entrance_time = db.Column(db.DateTime)
+    status = db.Column(db.String)
+
+    def __init__(self, gate_id, entrance_time, status):
+        self.gate_id = gate_id
+        self.entrance_time = entrance_time
+        self.status = status
+    
+
+
+
 
 #GateData operations
 @app.route("/insertGate",methods=['POST'])
@@ -101,11 +110,17 @@ def insert_key():
 def query_key():
     if request.method == 'GET':
         key_query = KeyData.query.all()
-        return json.jsonify([[key_query.key, key_query.creationtime] for gate in key_query])
+        if key_query == None:
+            return json.jsonify(["None", ])
+        else:
+            return json.jsonify([[key_query.key, key_query.creationtime] for gate in key_query])
     else:
         key = request.form['key']
         key_query = KeyData.query.filter_by(key = key).first()
-        return json.jsonify([key_query.key, key_query.creationtime])
+        if key_query == None:
+            return json.jsonify(["None", ])
+        else:
+            return json.jsonify([key_query.key, key_query.creationtime])
 
 @app.route("/deleteKey",methods=['POST'])
 def delete_key():
@@ -127,6 +142,36 @@ def update_act():
     except:
         db.session.rollback()
     return "activations updated"
+
+#EntranceData operations
+@app.route("/insertEntrance",methods=['POST'])
+def insert_entrance():
+    e_time = request.form['time']
+    e_time = datetime.strptime(e_time,"%Y-%m-%d %H:%M:%S.%f")
+    new_entrance = EntranceData(request.form['id'],
+                                e_time,
+                                request.form['status'])
+    db.session.add(new_entrance)
+    try:
+        db.session.commit()
+        return "entrace inserted"
+    except:
+        db.session.rollback()
+        return "Error - entrance not inserted",469
+
+@app.route("/queryEntrance",methods=['GET','POST'])
+def query_entrance():
+    if request.method == 'GET':
+        entrance_query = EntranceData.query.all()
+        return json.jsonify([[entrance.gate_id, entrance.entrance_time, entrance.status] for entrance in entrance_query])
+    else:
+        gate_id = request.form['id']
+        entrance_query = EntranceData.query.filterby(gate_id = gate_id).all()
+        return json.jsonify([[entrance.gate_id, entrance.entrance_time, entrance.status] for entrance in entrance_query])
+
+
+    
+
 
 if __name__ ==  "__main__":
     db.create_all()

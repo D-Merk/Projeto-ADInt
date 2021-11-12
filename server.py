@@ -5,10 +5,12 @@ from flask_sqlalchemy import SQLAlchemy
 import random
 import string
 import requests
+from requests.sessions import Request
 
 
 #URL for GateData
 URL = "http://localhost:9000"
+URL1 = "http://localhost:8002"
 
 #Flask app configuration
 app = Flask(__name__)
@@ -46,18 +48,33 @@ def list_gates():
     r = requests.get(URL+"/queryGate")
     gates = json.loads(r.text)
     return render_template("list.html", gates = gates)
+
+@app.route("/listAccess")
+def list_access():
+    r = requests.get(URL+"/queryEntrance")
+    entrances = json.loads(r.text)
+    return render_template("listAccess.html", entrances = entrances)
 #########################################################################
 
 @app.route("/gates",methods = ['POST'])
 def gates():
     key = request.form['code']
     gate_id = request.form['id']
+    s_id = request.form['s_id']
+
     #Check query
     r = requests.post(URL+"/queryKey", data={'key': key})
     keys = json.loads(r.text)
     endtime = datetime.now()
     
-    if keys is None:
+    if keys[0] == "None":
+        r = requests.post(URL+"/insertEntrance",data={'id': gate_id,
+                                                          'time': endtime,
+                                                          'status': "FAIL"})
+        r = requests.post(URL1+"insertEntry",data={'id': s_id,
+                                                   'gate_id': gate_id,
+                                                   'time': endtime,
+                                                   'status': "FAIL"})
         return "FAIL"
     else:
         endtime = datetime.now()
@@ -65,10 +82,29 @@ def gates():
         delta = delta.total_seconds()
         if delta > 60:
             r = requests.post(URL+"/deleteKey", data={'key':keys[0]})
+            
+            r = requests.post(URL+"/insertEntrance",data={'id': gate_id,
+                                                          'time': endtime,
+                                                          'status': "FAIL"})
+            
+            r = requests.post(URL1+"insertEntry",data={'id': s_id,
+                                                       'gate_id': gate_id,
+                                                       'time': endtime,
+                                                       'status': "FAIL"})
             return "FAIL"
         else:
             r = requests.post(URL+"/updateAct", data={'id': gate_id})
+            
             r = requests.post(URL+"/deleteKey", data={'key':keys[0]})
+            
+            r = requests.post(URL+"/insertEntrance",data={'id': gate_id,
+                                                          'time': endtime,
+                                                          'status': "SUCSSESS"})
+            
+            r = requests.post(URL1+"insertEntry",data={'id': s_id,
+                                                        'gate_id': gate_id,
+                                                        'time': endtime,
+                                                        'status': "SUCSSESS"})
             return "SUCSSESS"
 
 
