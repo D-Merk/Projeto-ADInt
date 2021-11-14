@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Gate Login</title>
+        <link rel="stylesheet" type="text/css" 
+            href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.css">
+        <script 
+            src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.js">
+        </script>
+    </head>
+
+    <body>
+        <h1>Please enter gate credentials</h1>
+        <div>
+            <form action="/" method="POST">
+                <p>Gate ID <input type="number" name="id"></p>
+                <p>Gate Secret <input type="number" name="secret"></p>
+                <button class="ui button" type="submit" value="Login">Login</button>
+            </form>
+        </div>
+        <div>
+            <h2>{{message}}</h2>
+        </div>
+    </body>
+</html>

@@ -10,16 +10,15 @@ table, th, td{
     </head>
 
     <body>
-        <h1>List of Accesses</h1>
+        <h1>List of Accesses for {{id}}</h1>
         <div>
             <table>
                 <tr>
                     <td>Gate ID</td>
-                    <td>Gate Secret</td>
-                    <td>Gate location</td>
-                    <td>Gate activation time</td>
+                    <td>Entrance time</td>
+                    <td>Status</td>
                 </tr>
-                {% for access in acesses %}
+                {% for access in accesses %}
                     <tr>
                         {% for par in access %}
                             <td>

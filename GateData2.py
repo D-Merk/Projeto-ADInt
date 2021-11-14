@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///GateData.sqlite'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///GateData2.sqlite'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["UPLOAD_FOLDER"] = os.path.abspath("files")
 
@@ -184,4 +184,4 @@ def query_entrance():
 
 if __name__ ==  "__main__":
     db.create_all()
-    app.run(host='0.0.0.0', port=9000, debug=True)
+    app.run(host='0.0.0.0', port=9003, debug=True)

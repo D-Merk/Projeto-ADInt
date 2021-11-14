@@ -7,6 +7,8 @@ import os
 URL1 = "http://localhost:8000"
 #URL for UserData
 URL2 = "http://localhost:8002"
+#URL for UserData2
+URL3 = "http://localhost:9001"
 
 #Flask app configuration
 app = Flask(__name__)
@@ -45,15 +47,37 @@ def user_page():
 
 @app.route("/qrcode")
 def new_qrcode():
-    r = requests.get(URL1+"/users")
-    secret = r.text
-    return render_template("qrcode.html", secret = secret)
+    if 'oauth_token' in session:
+        login_auth = OAuth2Session(client_id, token=session['oauth_token'])
+        ist_id = login_auth.get('https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person').json()
+    else:
+        return redirect(url_for('.login'))
+    r = requests.post(URL1+"/users",data={'s_id': ist_id['username']})
+    if r.ok:
+        secret = r.text
+        return render_template("qrcode.html", secret = secret)
+    else:
+        return r.status_code
 
 @app.route("/history")
 def history_gates():
-    r = requests.post(URL2+"/queryEntry", data= {'id':2})
-    accesses = json.loads(r.text)
-    return render_template("history.html", accesses = accesses)
+    if 'oauth_token' in session:
+        login_auth = OAuth2Session(client_id, token=session['oauth_token'])
+        ist_id = login_auth.get('https://fenix.tecnico.ulisboa.pt/api/fenix/v1/person').json()
+    else:
+        return redirect(url_for('.login'))
+    r = requests.post(URL2+"/queryEntry", data= {'id':ist_id['username']})
+    if r.ok:
+        accesses = json.loads(r.text)
+        return render_template("history.html", accesses = accesses, id = ist_id['username'])
+    else:
+        r1 = requests.post(URL3+"/queryEntry", data={'id':ist_id['username']})
+        if r1.ok:
+            accesses = json.loads(r.text)
+            return render_template("history.html", accesses = accesses, id = ist_id['username'])
+        else:
+            return r1.status_code
+
 #########################################################################
 #Starts database and flask web server
 if __name__ == "__main__":
